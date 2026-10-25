@@ -603,6 +603,30 @@ For Coolify, you can run Langflow directly in a Docker container using the offic
 
 The following production-oriented configuration uses environment-based settings, persistent storage for Langflow data, and a health check.
 
+### Run locally with Docker
+
+To build the image from the `Dockerfile` in the repository root and run it locally:
+
+```bash
+docker build -t mylangflowimage .
+
+docker run -it --rm -p 7860:7860 \
+  -e LANGFLOW_SUPERUSER=langflow \
+  -e LANGFLOW_SUPERUSER_PASSWORD=REPLACE_WITH_A_STRONG_UNIQUE_PASSWORD \
+  mylangflowimage
+```
+
+Replace the password placeholder with a strong, unique password. Langflow will be available at `http://localhost:7860`.
+
+To run the official image directly without building from a local `Dockerfile`:
+
+```bash
+docker run -it --rm -p 7860:7860 \
+  -e LANGFLOW_SUPERUSER=langflow \
+  -e LANGFLOW_SUPERUSER_PASSWORD=REPLACE_WITH_A_STRONG_UNIQUE_PASSWORD \
+  langflowai/langflow:latest
+```
+
 ### Dockerfile
 
 Add this `Dockerfile` to the root of your Git repository. It uses the official Langflow image and configures `/app/langflow` as the application data directory to persist in Coolify.
@@ -635,12 +659,14 @@ CMD ["langflow", "run", "--host", "0.0.0.0", "--port", "7860"]
 
 1. **Push to Git.** Commit and push the `Dockerfile` to a Git repository connected to Coolify.
 2. **Create an application.** Create a new application from your repository. Select **Dockerfile** as the build pack and set the Dockerfile path to `Dockerfile`.
-3. **Set environment variables.** Add the following in the application's environment-variable settings. Use a strong, unique password and do not commit secrets to Git.
+3. **Set environment variables.** Add these in the application's Coolify environment-variable settings:
 
    ```dotenv
    LANGFLOW_SUPERUSER=langflow
    LANGFLOW_SUPERUSER_PASSWORD=REPLACE_WITH_A_STRONG_UNIQUE_PASSWORD
    ```
+
+   Use a strong password; don't commit secrets to Git.
 
 4. **Add persistent storage.** Configure a persistent volume or storage mount at `/app/langflow`. This keeps Langflow's database, configuration, and uploaded files outside the disposable container filesystem.
 5. **Deploy.** Set the container port to `7860`. If configuring a health check, use `/health`. Enable HTTPS through Coolify's domain configuration.
